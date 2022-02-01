@@ -2,7 +2,7 @@
 SECTIONS
 {
     . = 0x80000;
-    _start = .
+    _start = .;
     .text : { KEEP(*(.text.boot)) *(.text .text.* .gnu.linkonce.t*) }
     .rodata : { *(.rodata .rodata.* .gnu.linkonce.r*) }
     PROVIDE(_data = .);
@@ -14,8 +14,9 @@ SECTIONS
         *(COMMON)
         _bss_end = .;
     }
-    _end = .
+    _end = 0x85000;
 
    /DISCARD/ : { *(.comment) *(.gnu*) *(.note*) *(.eh_frame*) }
 }
 _bss_size = (_bss_end - _bss_start)>>3;
+_devicetree = 0x200000;

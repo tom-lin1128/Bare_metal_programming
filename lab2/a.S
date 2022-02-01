@@ -3,6 +3,9 @@
 .global _start
 
 _start:
+	//load devicetree
+	ldr     x2, =_devicetree
+    str     x0, [x2]
   	//read cpu id, stop slave core
   	mrs x1, mpidr_el1
   	and x1, x1, #3

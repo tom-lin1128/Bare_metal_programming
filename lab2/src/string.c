@@ -42,3 +42,11 @@ void stritohex ( unsigned int  d, int size, char * s ){
 
     s[i] = '\0';
 }
+
+int little_endian_to_big_endian(int address){
+    address = ((address>>24)&0xff) | // move byte 3 to byte 0
+               ((address>>8)&0xff00) | // move byte 2 to byte 1
+               ((address<<8)&0xff0000) | // move byte 1 to byte 2
+               ((address<<24)&0xff000000); // byte 0 to byte 3
+    return address;
+}

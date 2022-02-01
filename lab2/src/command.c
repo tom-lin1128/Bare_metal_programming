@@ -1,7 +1,9 @@
 #include "command.h"
 #include "uart.h"
 #include "mailbox.h"
+#include "devicetree.h"
 #include "string.h" 
+#include "cpio.h"
 
 void command_help(){
     uart_puts("\n");
@@ -10,6 +12,7 @@ void command_help(){
     uart_puts("\thello:\t\tprint \"Hello World!\"\n");
     uart_puts("\tboard_info:\tprint board revision\n");
     uart_puts("\tmem_info:\tprint arm memory detail\n");
+    uart_puts("\tls:\t\tprint all file in dir\n");
     uart_puts("\treboot:\t\treboot the device\n");
     uart_puts("\n");
 }
@@ -58,6 +61,52 @@ void command_arm_memory(){
         uart_puts("Unable to access arm memory\n");
     }
 
+}
+
+void command_cpio_ls(){
+    cpio_ls(get_deviceprop("linux,initrd-start"));
+}
+
+void command_cpio_cat(){
+    char file_name[100];
+    char input;
+    int counter = 0;
+
+    printf_s("Filename: ");
+    while(1){
+        input = uart_getc();
+        if((input == 127) && counter > 0){
+            if(counter){
+                counter--;
+                printf_s("\rFilename: ");
+                for(int i = 0; i < counter; i++){
+                    printf_c(file_name[i]);
+                }
+                printf_c(' ');
+                printf_s("\rFilename: ");
+                for(int i = 0; i < counter; i++){
+                    printf_c(file_name[i]);
+                }
+		    }
+        }
+        else if((input == 10) || (input == 13)){
+            file_name[counter] = '\0';
+            printf_c(input);
+            break;
+        }
+        else{
+            file_name[counter] = input;
+            counter ++;
+            uart_send(input);
+        }
+    }
+    cpio_print_file_content(file_name,get_deviceprop("linux,initrd-start"));
+
+}
+
+void command_devicetree_info(){
+    parse_devicetree();
+    printf_c('\n');
 }
 
 void command_reboot(){

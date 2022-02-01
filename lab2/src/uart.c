@@ -44,6 +44,20 @@ void uart_send(unsigned int c){
 	}
 }
 
+char uart_getb() {
+    char r;
+    /* wait until something is in the buffer */
+    do {
+        asm volatile("nop");
+    } while (*AUX_MU_LSR & 0x01);
+    /* read it and return */
+    r = (char)(*AUX_MU_IO);
+    /* convert carrige return to newline */
+    return r;
+}
+
+int check_digit(char ch) { return (ch >= '0') && (ch <= '9'); }
+
 //Receive a char
 char uart_getc(){
 	char data;
@@ -58,4 +72,42 @@ void uart_puts(char *s){
 	while(*s){
 		uart_send(*s++);
 	}
+}
+
+void printf_s(char *ch) { uart_puts(ch); }
+void printf_c(char ch) { uart_send(ch); }
+
+void printf_i(int x) {
+    if (x < 0) {
+        printf_c('-');
+        x = -x;
+    }
+    if (x >= 10) printf_i(x / 10);
+    printf_c(x % 10 + '0');
+}
+
+int scanf_i() {
+    int x = 0, f = 0;
+    char ch = 0;
+    while (!check_digit(ch)) {
+        f |= ch == '-';
+        ch = uart_getc();
+    }
+    while (check_digit(ch)) {
+		x = (x << 3) + (x << 1) + (ch ^ 48);
+		ch = uart_getc();
+	}
+    return f ? -x : x;
+}
+
+void printf_h(unsigned int d) {
+    unsigned int n;
+    int c;
+    for (c = 28; c >= 0; c -= 4) {
+        // get highest tetrad
+        n = (d >> c) & 0xF;
+        // 0-9 => '0'-'9', 10-15 => 'A'-'F'
+        n += n > 9 ? 0x37 : 0x30;
+        uart_send(n);
+    }
 }

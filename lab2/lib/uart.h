@@ -20,5 +20,13 @@
 
 void uart_init();
 void uart_send(unsigned int c);
+char uart_getb(); 
 char uart_getc();
 void uart_puts(char *s);
+
+int check_digit(char ch);
+void printf_s(char *); 
+void printf_c(char); 
+void printf_i(int x);
+void printf_h(unsigned int d);
+int scanf_i();
