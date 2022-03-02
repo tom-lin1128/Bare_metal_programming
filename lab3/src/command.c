@@ -3,8 +3,8 @@
 #include "mailbox.h"
 #include "devicetree.h"
 #include "string.h" 
+#include "exception.h"
 #include "cpio.h"
-#include "allocator.h"
 
 void command_help(){
     uart_puts("\n");
@@ -14,9 +14,15 @@ void command_help(){
     uart_puts("\tboard_info:\tprint board revision\n");
     uart_puts("\tmem_info:\tprint arm memory detail\n");
     uart_puts("\tls:\t\tprint all file in dir\n");
-    uart_puts("\tcat:\t\tprint file content\n");
+    uart_puts("\tcat:\t\tprint the file content\n");
+    uart_puts("\td:\t\tprint the devicetree content\n");
     uart_puts("\treboot:\t\treboot the device\n");
     uart_puts("\n");
+}
+
+void command_el0(){
+    extern void from_el1_to_el0();
+    from_el1_to_el0();
 }
 
 void command_hello(){
@@ -65,6 +71,11 @@ void command_arm_memory(){
 
 }
 
+void command_svc(){
+    system_call_sim();
+}
+
+
 void command_cpio_ls(){
     cpio_ls(get_deviceprop("linux,initrd-start"));
 }
@@ -109,48 +120,6 @@ void command_cpio_cat(){
 void command_devicetree_info(){
     parse_devicetree();
     printf_c('\n');
-}
-
-
-void command_allocate(){
-    printf_s("--------------------------\n");
-    printf_s("      buddy system test   \n");
-    printf_s("--------------------------\n");
-    int *a = (int *)memory_alloc(4096);
-    int *b = (int *)memory_alloc(8192);
-    int *c = (int *)memory_alloc(10000);
-
-
-    memory_free(a);
-    memory_free(b);
-    memory_free(c);
-
-    printf_s("\n\n");
-
-    printf_s("--------------------------\n");
-    printf_s("  dynamic allocate test   \n");
-    printf_s("--------------------------\n");
-
-    int *d = dynamic_malloc(17);
-    int *e = dynamic_malloc(68);
-    int *f = dynamic_malloc(8);
-    int *g = dynamic_malloc(21);
-
-    printf_h((long)d);
-    printf_c('\n');
-    printf_h((long)e);
-    printf_c('\n');
-    printf_h((long)f);
-    printf_c('\n');
-    printf_h((long)g);
-    printf_c('\n');
-
-    free(d);
-    free(e);
-    free(f);
-    free(g);
-    printf_c('\n');
-    printf_s("test end\n");
 }
 
 void command_reboot(){

@@ -1,8 +1,8 @@
 import serial
 import time
 import os
-Portname = '/dev/pts/4' 
-Filename = 'kernel8.img'
+Portname = '/dev/pts/5' 
+Filename = 'kernel1.img'
 
 def send_img():
     with open(Filename,'rb',buffering = 0) as F:
