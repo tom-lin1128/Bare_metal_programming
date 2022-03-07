@@ -14,7 +14,7 @@ SECTIONS
         *(COMMON)
         _bss_end = .;
     }
-    _end = 0x85000;
+    _end = .;
 
    /DISCARD/ : { *(.comment) *(.gnu*) *(.note*) *(.eh_frame*) }
 }

@@ -1,5 +1,5 @@
 #include "gpio.h"
-
+#include "irq.h"
 #define AUX_ENABLE			((volatile unsigned int*)(MMIO_BASE+0x00215004))
 #define AUX_MU_IO			((volatile unsigned int*)(MMIO_BASE+0x00215040))
 #define AUX_MU_IER			((volatile unsigned int*)(MMIO_BASE+0x00215044))
@@ -17,7 +17,17 @@
 #define PM_RSTC     0x3F10001c
 #define PM_WDOG     0x3F100024
 
+void enable_uart_interrupt();
+void disable_uart_interrupt();
 
+
+void uart_interrupt();
+void enable_uart_interrupt();
+void disable_uart_interrupt();
+void enable_tx_interrupt();
+void disable_tx_interrupt();
+void enable_rx_interrupt();
+void disable_rx_interrupt();
 void uart_init();
 void uart_send(unsigned int c);
 char uart_getb(); 

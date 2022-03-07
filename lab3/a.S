@@ -47,8 +47,8 @@ from_el2_to_el1:
 from_el1_to_el0:
     ldr x1, =_start
     msr sp_el0, x1
-    //mov x1, #0x3c0
-    //msr spsr_el1, x1 // save program status register
+    //mov x0, #0x3c0
+    //msr spsr_el1, x0 // save program status register
 	ldr x0, 0
     msr spsr_el1, x0
     adr x0, 4f
@@ -57,8 +57,9 @@ from_el1_to_el0:
 
 //jump to c code, sould not return
 timers:
-	//
-	bl core_timer_enable
+	//bl core_timer_enable
+	msr DAIFClr, 0xf
+	
 	//bl from_el1_to_el0
 4:	bl	main
 	// hait this core

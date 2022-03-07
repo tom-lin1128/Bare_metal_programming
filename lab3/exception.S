@@ -142,14 +142,20 @@ serror_sp_el0:
 synchronous_sp_elx:
     save_all
     mov x0, #4
-    bl exception_handl 
+    bl get_exception_vector_table
+    bl exception_handler
+    load_all   
     ret
 
 irq_sp_elx:
+    msr DAIFSet, 0xf
     save_all
     mov x0, #5
-    bl exception_handl 
-    ret
+    bl get_exception_vector_table
+    bl irq_handler
+    load_all
+    msr DAIFClr, 0xf
+    eret
 
 fiq_sp_elx:
     save_all
@@ -172,11 +178,13 @@ synchronous_aarch64:
     eret
 
 irq_aarch64:
+    msr DAIFSet, 0xf
     save_all
     mov x0, #9
     bl get_exception_vector_table
-    bl exception_handler 
+    bl irq_handler
     load_all
+    msr DAIFClr, 0xf
     eret
 
 fiq_aarch64:

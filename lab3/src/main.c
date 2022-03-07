@@ -7,6 +7,7 @@ int main(){
 
 	uart_init();
 	//old_kernel_move();
+	printf_s("welcome\n");
 	exec();
     return 0;
 }

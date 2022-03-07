@@ -17,6 +17,36 @@ int strcmp(char *s1, char *s2){
 	return 1;
 }
 
+int strncmp(char* s1, char* s2, int n)
+{
+	int count = 0;
+
+	if (*s1 == '\0' && *s2 != 0)
+	{
+		return 0;
+	}
+
+	if (*s2 == '\0' && *s1 != 0)
+	{
+		return 0;
+	}
+
+	for (; *s1 != '\0' && *s2 != '\0' &&count<n; s1++, s2++,count++)
+	{
+		if ((*s1 - *s2) > 0)
+		{
+			return 0;
+		}
+
+		else if ((*s1 - *s2) <0)
+		{
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
 void stritohex ( unsigned int  d, int size, char * s ){
     int i = 0;
     unsigned int n;

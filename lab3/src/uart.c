@@ -1,7 +1,7 @@
 #include "uart.h"
+#include "queue.h"
 
-
-
+QUEUE_T *readbuf,*writebuf;
 void uart_init(){
 	unsigned int reg;
 
@@ -26,11 +26,69 @@ void uart_init(){
 	reg = 150;
 	while(reg--) { asm volatile("nop");}
 	*GPPUDCLK0 = 0;	//flush GPIO setup
-
 	*AUX_MU_CNTL = 3; // Enable tx and rx
 
-
+	//readbuf  = queue_new();
+	//printf_h(readbuf);
+	//printf_c('\n');
+	//writebuf = queue_new();
+	//printf_h(writebuf);
+	//enable_uart_interrupt();
+	//*AUX_MU_IER = 1;
 }
+
+
+
+void uart_interrupt(){
+	disable_uart_interrupt();
+	//tx
+	//Transmit holding register empty
+	if(*AUX_MU_IIR & 0x2){
+		while(!queue_is_empty(writebuf)){
+			while(!(*AUX_MU_LSR & 0x20)){
+				asm volatile("nop");
+			}
+			*AUX_MU_IO = dequeue(writebuf);
+		}
+		//printf_c('t');
+		disable_tx_interrupt();
+	}
+	//rx
+	else if(*AUX_MU_IIR & 0x4){
+		while(*AUX_MU_LSR & 0x01){
+			char r = (char)(*AUX_MU_IO);
+			enqueue(readbuf,r);
+		}
+		//printf_s("rx");
+	}
+	enable_uart_interrupt();
+}
+
+
+
+
+
+/*
+//asyn send
+void uart_send(unsigned int c){
+	enqueue(writebuf,(char)c);
+	enable_tx_interrupt();
+}
+
+
+//asyn getc
+char uart_getc(){
+	do {asm volatile("nop");} while (!(*AUX_MU_LSR & 0x01));
+
+	char data = (char)dequeue(readbuf);
+	//data = (char)(*AUX_MU_IO);
+	return data == '\r' ? '\n' : data;
+}
+*/
+
+
+
+
 
 //write data
 void uart_send(unsigned int c){
@@ -38,12 +96,24 @@ void uart_send(unsigned int c){
 	do{asm volatile("nop");}while(!(*AUX_MU_LSR & 0x20));
 
 	*AUX_MU_IO = c;
-
 	if(c == '\n'){
 		do{asm volatile("nop");}while(!(*AUX_MU_LSR & 0x20));
 		*AUX_MU_IO = '\r';
 	}
 }
+
+
+//Receive a char
+char uart_getc(){
+	char data;
+	do{asm volatile("nop");}while(!(*AUX_MU_LSR & 0x01));
+	data = (char)(*AUX_MU_IO);
+	return data == '\r' ? '\n' : data;
+}
+
+
+
+
 
 char uart_getb() {
     char r;
@@ -59,13 +129,7 @@ char uart_getb() {
 
 int check_digit(char ch) { return (ch >= '0') && (ch <= '9'); }
 
-//Receive a char
-char uart_getc(){
-	char data;
-	do{asm volatile("nop");}while(!(*AUX_MU_LSR & 0x01));
-	data = (char)(*AUX_MU_IO);
-	return data == '\r' ? '\n' : data;
-}
+
 
 //Display a string
 void uart_puts(char *s){
@@ -111,4 +175,29 @@ void printf_h(unsigned int d) {
         n += n > 9 ? 0x37 : 0x30;
         uart_send(n);
     }
+}
+
+
+void enable_uart_interrupt(){
+	*Enable_IRQs1 = AUX_INT;
+}
+
+void disable_uart_interrupt(){
+	*Disable_IRQs1 = AUX_INT;
+}
+
+void enable_tx_interrupt(){
+	*AUX_MU_IER |= 2; 
+}
+
+void disable_tx_interrupt(){
+	*AUX_MU_IER &= (~2); 
+}
+
+void enable_rx_interrupt(){
+	*AUX_MU_IER |= 1; 
+}
+
+void disable_rx_interrupt(){
+	*AUX_MU_IER &= (~1); 
 }

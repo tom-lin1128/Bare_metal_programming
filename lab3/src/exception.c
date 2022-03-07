@@ -68,10 +68,26 @@ void exception_handler(int type, unsigned long sspsr_el1, unsigned long elr_el1,
         asm volatile("mov x0, 0\n""msr cntp_ctl_el0, x0\n");//disable timer interrupt
     }
     else{
-        printf_s("Exception ");
+        printf_s("interrupt ");
         printf_s(exception_type[type]);
-        printf_s(" occur");
-        printf_s("  sspsr_el1 : ");
+        printf_s(" occur\n");
+        printf_s("interrupt ");
+        switch(esr_el1>>26) {
+            case 0b000000: printf_s("Unknown"); break;
+            case 0b000001: printf_s("Trapped WFI/WFE"); break;
+            case 0b001110: printf_s("Illegal execution"); break;
+            case 0b010101: printf_s("System call"); break;
+            case 0b100000: printf_s("Instruction abort, lower EL"); break;
+            case 0b100001: printf_s("Instruction abort, same EL"); break;
+            case 0b100010: printf_s("Instruction alignment fault"); break;
+            case 0b100100: printf_s("Data abort, lower EL"); break;
+            case 0b100101: printf_s("Data abort, same EL"); break;
+            case 0b100110: printf_s("Stack alignment fault"); break;
+            case 0b101100: printf_s("Floating point"); break;
+            default: printf_s("Unknown"); break;
+        }
+        printf_s(" occur\n");     
+        printf_s("sspsr_el1 : ");
         printf_h(sspsr_el1);
         printf_s(" elr_el1 : ");
         printf_h(elr_el1);
@@ -79,15 +95,4 @@ void exception_handler(int type, unsigned long sspsr_el1, unsigned long elr_el1,
         printf_h(esr_el1);
         printf_c('\n');    
     }
-}
-
-void coretime(){
-    int count, f;
-    int time = 0;
-    printf_s("  ");
-    asm volatile("mrs  %[result], cntpct_el0": [result]"=r"(count));
-    asm volatile("mrs  %[result], cntfrq_el0": [result]"=r"(f));
-    time = (count) / f;
-    printf_i(time);
-    printf_s(" second timer interrupt\n");
 }

@@ -4,6 +4,7 @@
 #include "string.h"
 #include "uartbooting.h"
 #include "allocator.h"
+#include "timer.h"
 
 long kernel_start = (long)&_start;
 
@@ -85,6 +86,26 @@ void list_command(Control P, char input, char *buffer, int *counter){
 			printf_h(a);
 			printf_c('\n');
 		}
+		else if (strncmp("setTimeout",        buffer,10)){
+			int i=10, j=0, len = strlen(buffer), seconds = 0;
+			char *message = nullptr;
+			i++;
+			for(; i < len; i++){
+				if(buffer[i] == ' ')	break;
+				message[j++] = buffer[i];
+			}
+			i++;
+			j++;
+			message[j] = '\0';
+			for(; i < len; i++){
+				if(buffer[i] == ' ')	break;
+				seconds *= 10;
+				seconds += (buffer[i] - '0'); 
+			}
+			add_timer(seconds,message);
+			timer_info();
+
+		}
 		else if (*(counter) == 0)				*(counter) = 0;
 		else 								    command_not_found(buffer);
     
@@ -107,6 +128,7 @@ void list_command(Control P, char input, char *buffer, int *counter){
 }
 
 void exec(){
+	timer_init(); 
 	while(1){
 		shell_s();
 	}
