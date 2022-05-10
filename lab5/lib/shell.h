@@ -16,4 +16,4 @@ void shell_s();
 Control Parse(char);
 void list_command(Control, char, char [], int *);
 
-void exec();
+void execl();

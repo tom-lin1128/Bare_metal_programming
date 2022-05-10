@@ -19,3 +19,4 @@ switch_to:
   mov sp,  x9
   msr tpidr_el1, x1
   ret
+

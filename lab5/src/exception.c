@@ -99,7 +99,7 @@ void exception_handler(int type, unsigned long sspsr_el1, unsigned long elr_el1,
     }
 }
 
-void exception_handler_systemcall(unsigned long esr, unsigned long elr, trap_frame *now_trap_frame){
+void exception_handler_systemcall(unsigned long esr, unsigned long elr, trap_frame *now_trap_frame, unsigned long lr){
     thread_struct *thread = get_current();
     thread->tf = now_trap_frame;
     int iss = esr & ((1 << 24) - 1);
@@ -108,39 +108,44 @@ void exception_handler_systemcall(unsigned long esr, unsigned long elr, trap_fra
         int num;
         switch(systemcall){
             case 0:
-                thread->tf->x0 = (unsigned long long int)thread->tid;
+                thread->tf->x0 = (unsigned long long int)thread->tid;              
                 break;
             case 1:
+                asm volatile("msr DAIFClr, 0xf");
                 num = 0;
-                for(int i = 0; i < now_trap_frame->x1; ++i){
-                    *((char*)now_trap_frame->x0 + i) = uart_getc();
+                //printf_s("test 1");
+                for(int i = 0; i < thread->tf->x1; ++i){
+                    *((char*)thread->tf->x0 + i) = uart_getc();
                     num++;
                 }
-                now_trap_frame->x0 = num;
+                thread->tf->x0 = num;
+                asm volatile("msr DAIFSet, 0xf");
                 break;
             case 2:
+                asm volatile("msr DAIFClr, 0xf");
                 num = 0;
-                for(int i = 0; i < now_trap_frame->x1; ++i){
-                    uart_send(*((char*)now_trap_frame->x0 + i));
+                //printf_s("test 2");
+                for(int i = 0; i < thread->tf->x1; ++i){
+                    uart_send(*((char*)thread->tf->x0 + i));
                     num++;
                 }
-                now_trap_frame->x0 = num;
+                thread->tf->x0 = num;
+                asm volatile("msr DAIFSet, 0xf");
                 break;
             case 3:
-                do_execl((const char*)now_trap_frame->x0);
+                do_exec((const char*)thread->tf->x0);
                 break;
             case 4:
-                do_fork(now_trap_frame->x9,(unsigned long long)now_trap_frame);
+                do_fork((unsigned long long)thread->tf);
                 break;
             case 5:
                 thread->status = ZOMBIE;
-                schedule();
                 break;
             case 6:
-                now_trap_frame->x0 = mailbox_call(now_trap_frame->x0,(unsigned int *)now_trap_frame->x1);
+                thread->tf->x0 = mailbox_call(thread->tf->x0,(unsigned int*)thread->tf->x1);
                 break;
             case 7:
-                do_kill(now_trap_frame->x0);
+                do_kill(thread->tf->x0);
                 break;
         }
     }

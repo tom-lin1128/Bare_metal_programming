@@ -40,7 +40,7 @@ from_el2_to_el1:
 	bl  set_exception_vector_table
     mov x0, 0x5 // EL1h (SPSel = 1) with interrupt disabled
     msr spsr_el2, x0
-	adr x0, 4f
+	adr x0, timers
     msr elr_el2, x0
     eret // return to EL1
 

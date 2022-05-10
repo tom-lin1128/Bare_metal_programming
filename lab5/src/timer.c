@@ -3,6 +3,10 @@
 #include "string.h"
 #include "thread.h"
 void timer_init(){
+    unsigned long long tmp;
+    asm volatile("mrs %0, cntkctl_el1" : "=r"(tmp));
+    tmp |= 1;
+    asm volatile("msr cntkctl_el1, %0" : : "r"(tmp));   
     timer_header = nullptr;
 }
 
@@ -87,14 +91,14 @@ void timer_handler(){
 }
 
 void timer_handler2(){
-    printf_s("\ntimer\n");
-    printf_s("$ ");
+    //printf_s("\ntimer\n");
+    //printf_s("\n$ ");
     /*asm volatile("mrs     x0, cntfrq_el0\n"
                  "lsl     x0, x0, #1\n"
                  "msr     cntp_tval_el0, x0\n");*/
     //core_timer_disable();
     expire(1);
-    core_timer_enable();
+    //printf_c('\n');
     schedule();
 }
 

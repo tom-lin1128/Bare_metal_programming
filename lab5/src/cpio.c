@@ -63,7 +63,7 @@ void cpio_print_file_content(char *file, unsigned long addr) {
     }
 }
 
-char* cpio_exec(const char *file, unsigned long addr){
+char* cpio_exec(const char *file, unsigned long addr, int *size){
     struct cpio_newc_header* header = (struct cpio_newc_header*)(addr == 0 ? CPIO_ADDR : addr);
     int flag = 0;
     unsigned long file_size, name_size;
@@ -79,6 +79,7 @@ char* cpio_exec(const char *file, unsigned long addr){
         header = (struct cpio_newc_header*)((char *)header + align(CPIO_SIZE+name_size, 4) + align(file_size, 4));
     }
     if(flag){
+        *size = file_size;
         return (char *)((char *)header + align(CPIO_SIZE + name_size, 4));
     }
     else{

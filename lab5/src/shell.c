@@ -6,7 +6,6 @@
 #include "allocator.h"
 #include "timer.h"
 #include "exception.h"
-#include "thread.h"
 #include "systemcall.h"
 
 long kernel_start = (long)&_start;
@@ -132,8 +131,16 @@ void list_command(Control P, char input, char *buffer, int *counter){
  
 }
 
-void exec(){
+void execl(){
 	while(1){
-		shell_s();
+		//if(fork()==0){
+		//	exec("syscall.img");
+		//}else{
+			if(fork()==0)
+				exec("syscall.img");
+			else{
+				while(1);
+			}
+		//}
 	}
 }

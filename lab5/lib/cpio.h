@@ -21,4 +21,4 @@ struct cpio_newc_header {
 
 void cpio_ls(unsigned long);
 void cpio_print_file_content(char*, unsigned long);
-char* cpio_exec(const char*, unsigned long);
+char* cpio_exec(const char*, unsigned long,int *);

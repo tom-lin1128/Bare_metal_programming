@@ -23,7 +23,8 @@ kernel8.img: $(ARMO) $(OBJS)
 
 clean:
 	rm kernel8.elf kernel8.img src/*.o >/dev/null 2>/dev/null || true
-
+dis:
+	qemu-system-aarch64 -M raspi3 -kernel kernel8.img -initrd initramfs.cpio -dtb bcm2710-rpi-3-b-plus.dtb -serial null -serial stdio
 run:
 	qemu-system-aarch64 -M raspi3 -kernel kernel8.img -initrd initramfs.cpio -dtb bcm2710-rpi-3-b-plus.dtb -display none -serial null -serial stdio
 

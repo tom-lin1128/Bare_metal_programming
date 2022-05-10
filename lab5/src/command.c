@@ -121,23 +121,86 @@ void command_devicetree_info(){
     parse_devicetree();
     printf_c('\n');
 }
-
+void command_forks(){
+    /*int ret = fork();
+    if(ret == 0){
+        printf_s("child\n");
+        exit();
+    }
+    else{
+        printf_s("parent\n");
+    }*/
+    if(fork() == 0){
+        while(1);
+    }
+    else{
+        shell_s();
+    }
+}
 void command_fork(){
     printf_s("\nFork Test, pid ");
 	printf_i(getpid());
 	printf_c('\n');
 	int cnt = 1;
 	int ret = 0;
+    /*if((ret = fork()) == 0){
+        exec("syscall.img");
+    }
+    else{
+        printf_s("parent\n");
+    }*/
 	if((ret = fork()) == 0){
-		printf_i(ret);
-		printf_s(" child\n");
-		exit();
+		long long cur_sp;
+        asm volatile("mov %0, sp" : "=r"(cur_sp));
+        printf_s("first child pid: ");
+        printf_i(getpid());
+        printf_s(", cnt: ");
+        printf_i(cnt);
+        printf_s(", ptr: ");
+        printf_h(&cnt);
+        printf_s(", sp: ");
+        printf_h(cur_sp);
+        printf_c('\n');
+        //cnt++;
+        if((ret = fork()) != 0){
+            asm volatile("mov %0, sp" : "=r"(cur_sp));
+            printf_s("first child pid: ");
+            printf_i(getpid());
+            printf_s(", cnt: ");
+            printf_i(cnt);
+            printf_s(", ptr: ");
+            printf_h(&cnt);
+            printf_s(", sp: ");
+            printf_h(cur_sp);
+            printf_c('\n');
+        }
+        else{
+            while(cnt < 5){
+                asm volatile("mov %0, sp" : "=r"(cur_sp));
+                printf_s("second child pid: ");
+                printf_i(getpid());
+                printf_s(", cnt: ");
+                printf_i(cnt);
+                printf_s(", ptr: ");
+                printf_h(&cnt);
+                printf_s(", sp: ");
+                printf_h(cur_sp);
+                printf_c('\n');
+                for(int i = 0; i < 10000000; i++);
+                ++cnt;
+            }
+        }
+        exit();
 	}
-	else{
-		printf_i(ret);
-		printf_s(" parent\n");
-		exit();
-	}
+    else{
+        printf_s("parent here, pid: ");
+        printf_i(getpid());
+        printf_s(", child ");
+        printf_i(ret);
+        printf_c('\n');
+    }
+
+
 }
 
 void command_allocate(){

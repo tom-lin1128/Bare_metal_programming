@@ -54,6 +54,7 @@ typedef struct{
     unsigned long long utask_sp;
     unsigned long long usr_sp;
     unsigned long long kernel_sp;
+    unsigned long long elr;
     trap_frame *tf;
 
     struct list_head runqueue_next;
@@ -71,6 +72,6 @@ void thread_info();
 thread_struct* get_current(); 
 void schedule();
 void context_switch(thread_struct*);
-void do_execl(const char *);
-void do_fork(unsigned long long,unsigned long long);
+void do_exec(const char *);
+void do_fork(unsigned long long);
 void do_kill(int tid);
