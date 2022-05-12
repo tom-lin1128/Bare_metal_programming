@@ -57,8 +57,6 @@ void init_thread(){
 
     timer_init();
     core_timer_enable();
-    printf_h(new_thread->usr_sp);
-    printf_c('\n');
     el0(new_thread->usr_sp,&execl);
 }
 void* Thread_create(void (*func)()){
@@ -171,14 +169,6 @@ void do_fork(unsigned long long sp){
 
     size = cur_thread->usr_sp - cur_thread->utask_sp;
     new_thread->utask_sp = new_thread->usr_sp - size;
-    /*printf_h(new_thread->utask_sp);
-    printf_c('\n');
-    printf_i(size);
-    printf_c('\n');
-    printf_h(sp_el0);
-    printf_c('\n');
-    printf_h(cur_thread->usr_sp);
-    printf_c('\n');*/
 
     for(int i = 0; i < size; ++i)
         *((char *)new_thread->usr_sp - i) = *((char *)cur_thread->usr_sp - i);
