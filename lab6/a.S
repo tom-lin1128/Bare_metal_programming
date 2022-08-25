@@ -18,7 +18,7 @@ _start:
   	   b 1b
 
 2:	// cpu id == 0
-	//set top of stack(stack grows to lower address) 
+	// set top of stack(stack grows to lower address)
 	ldr	x1, =PA(_start)
     mov	sp,	x1
 
